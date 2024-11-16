@@ -1,0 +1,30 @@
+﻿@page "/mapa"
+@rendermode InteractiveServer
+@inject Contexto ctx
+@using practica8.Components.propios;
+
+
+<PageTitle>Mapa</PageTitle>
+<h1>Mapa</h1>
+
+<AsgMap ListaDetenciones="ListaDetenciones"/>
+
+@code {
+
+    public List<Detenciones> ListaDetenciones= new List<Detenciones>();
+
+    protected override async Task OnAfterRenderAsync(bool render){
+        if(render){
+            ListaDetenciones= new List<Detenciones>();
+           
+           foreach (var x in ctx.detenciones){
+
+                ListaDetenciones.Add(x);
+           }
+
+           StateHasChanged();
+
+        }
+    }
+    }
+}

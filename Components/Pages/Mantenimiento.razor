@@ -1,0 +1,191 @@
+﻿@page "/"
+@page "/mantenimiento"
+@rendermode InteractiveServer
+@inject Contexto ctx
+@using Microsoft.EntityFrameworkCore;
+@inject IJSRuntime jsx
+
+<PageTitle>Mantenimiento</PageTitle>
+
+<h1>Mantenimiento</h1>
+
+@if(modo == Modo.listar){
+
+    <h1>Lista de detenciones</h1>
+
+    <div class="text-end mb-3">
+        <botton class="btn btn-info btn-lg" @onclick="agregar">Agregar nueva detencion</botton>
+    </div>
+
+    <table class="table table-tripped table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre completo</th>
+                <th>Pasaporte</th> 
+                <th>Fecha de nacimiento</th> 
+                <th>Fecha de detencion</th>
+                <th>Coordenadas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var x in detenciones )
+            {
+                <tr>
+                    <td>@x.Nombre @x.Apellido</td>
+                    <td>@x.Pasaporte</td>
+                    <td>@x.FechaN</td>
+                    <td>@x.FechaD</td>
+                    <td>@x.Latitud, @x.Longitud </td>
+                    <td>
+                        <div class="row mb-3">
+                            <botton class="btn btn-info btn-lg " @onclick="()=>editar(x)">Editar</botton>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <botton class="btn btn-danger btn-lg" @onclick="()=>borrar(x)">Borrar</botton>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+else{
+    <h1>Editar de detenciones</h1>
+
+    <EditForm Model="detencion" OnValidSubmit="guardar">
+        <ValidationSummary/>
+        <DataAnnotationsValidator/>
+
+        <div class="row">
+            <div class="col">
+    using System.IdentityModel.Tokens.Jwt;
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <InputText class="form-control" @bind-Value=detencion.Nombre/>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="mb-3">
+                    <label class="form-label">Apellido</label>
+                    <InputText class="form-control" @bind-Value=detencion.Apellido/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <InputDate class="form-control" @bind-Value=detencion.FechaN/>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="mb-3">
+                    <label class="form-label">Numero de Pasaporte </label>
+                    <InputNumber class="form-control" @bind-Value=detencion.Pasaporte/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label class="form-label">Fecha de detencion</label>
+                    <InputDate class="form-control" @bind-Value=detencion.FechaD/>
+                </div>
+            </div>
+            <div class="col">
+                 <label class="form-label">Latitud </label>
+                    <InputNumber class="form-control" @bind-Value=detencion.Latitud/>
+            </div>
+            <div class="col">
+                 <label class="form-label">longitud </label>
+                    <InputNumber class="form-control" @bind-Value=detencion.Longitud/>
+            </div>
+        </div>
+
+       <div class="text-center mb-3">
+            <button type="Submit" class="btn btn-info btn-lg">Guardar</button>
+       </div>
+    
+    </EditForm>
+}
+
+
+
+
+@code{
+    public enum Modo{ listar , editar}
+
+    public Modo modo = Modo.listar;
+
+    public List<Detenciones> detenciones{get; set;}= new List<Detenciones>();
+    public Detenciones detencion{get; set;} = new Detenciones();
+
+    public void agregar(){
+        modo=Modo.editar;
+    }
+
+    public void editar (Detenciones x){
+
+        modo=Modo.editar;  
+        detencion=x;
+
+    }
+    protected async Task guardar(){
+
+        if(detencion.ID>0){
+
+            ctx.detenciones.Update(detencion);
+        }
+        else{ 
+            ctx.detenciones.Add(detencion);
+            detenciones.Add(detencion);
+        }
+
+        detencion= new Detenciones();
+        modo=Modo.listar;
+        await ctx.SaveChangesAsync();
+        StateHasChanged();
+        
+    }
+
+    protected async Task  borrar(Detenciones x){
+
+       
+        ctx.detenciones.Remove(detencion);
+        detenciones.Remove(detencion);
+        detencion= new Detenciones();
+        modo=Modo.listar;
+        await ctx.SaveChangesAsync();
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool render){
+        if(render){
+            detenciones= new List<Detenciones>();
+           
+           foreach (var x in ctx.detenciones){
+
+                detenciones.Add(x);
+           }
+
+           StateHasChanged();
+
+        }
+    }
+
+    
+
+
+
+    
+    
+
+
+}

@@ -1,0 +1,30 @@
+﻿@page "/calendario"
+@rendermode InteractiveServer
+@using practica8.Components.propios;
+@inject Contexto ctx
+
+<PageTitle>Calendario</PageTitle>
+
+<h1>Calendario</h1>
+
+<Calendar ListaDetenciones="ListaDetenciones"/>
+
+@code {
+
+    public List<Detenciones> ListaDetenciones= new List<Detenciones>();
+
+    protected override async Task OnAfterRenderAsync(bool render){
+        if(render){
+            ListaDetenciones= new List<Detenciones>();
+           
+           foreach (var x in ctx.detenciones){
+
+                ListaDetenciones.Add(x);
+           }
+
+           StateHasChanged();
+
+        }
+    }
+    }
+}
